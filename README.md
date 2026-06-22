@@ -1,6 +1,6 @@
 # Prática 1 – Grafos: Roteamento e Coloração em Redes
 
-Projeto da disciplina de Teoria dos Grafos. Resolve dois problemas de infraestrutura de redes:
+Projeto da disciplina de Teoria dos Grafos - UFAL 2026.1. Resolve dois problemas de infraestrutura de redes:
 
 - **Parte 1**: roteamento de menor custo em uma rede de backbone (grafo direcionado com pesos, podendo ter custos negativos).
 - **Parte 2**: alocação de canais Wi-Fi em um campus universitário, via coloração de grafos.
