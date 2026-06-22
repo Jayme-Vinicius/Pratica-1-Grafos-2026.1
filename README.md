@@ -47,7 +47,7 @@ O separador é TAB (`\t`).
 
 O programa lê o grafo e **verifica automaticamente** se existe alguma aresta com custo negativo:
 
-- **Sem peso negativo** → usa **Dijkstra**. É o algoritmo mais eficiente para esse caso (não suporta pesos negativos, mas isso não é um problema aqui).
+- **Sem peso negativo** → usa **Dijkstra**. É o algoritmo mais eficiente para esse caso (não suporta pesos negativos, mas isso não é um problema para o caso teste grafo_rede_p.txt).
 - **Com peso negativo** → usa **Bellman-Ford**. O Dijkstra deixa de ser válido na presença de pesos negativos. O Floyd-Warshall também resolveria, mas calcula o caminho mínimo entre **todos os pares** de vértices, o que é desnecessário já que só precisamos do caminho S→T — por isso o Bellman-Ford é a escolha mais eficiente entre as opções válidas.
 
 Se for detectado um **ciclo de custo negativo** alcançável a partir da origem, o caminho mínimo não está definido (o custo poderia ser reduzido indefinidamente). Nesse caso, o programa exibe um aviso no terminal e não gera o arquivo de saída.
