@@ -69,34 +69,56 @@ Mais detalhes de uso rápido em [`parte1/parte1.md`](parte1/parte1.md).
 
 ## Parte 2 — Alocação de Canais Wi-Fi
 
-<>
+O objetivo é atribuir canais aos pontos de acesso (APs) de uma rede Wi-Fi de campus, modelada como um grafo não-direcionado e sem pesos, onde uma aresta indica que dois APs interferem entre si. A atribuição deve ser **válida** (nenhum par de APs adjacentes usa o mesmo canal) e usar o **menor número possível de canais** (número cromático χ(G) do grafo).
 
 ### Requisitos
 
-<>
+- Python 3 (testado com Python 3.10+)
+- Nenhuma biblioteca externa é necessária
 
 ### Como executar
 
-<>
-
 ```bash
 cd parte2
-# 
+python3 coloracao_wifi.py <arquivo_entrada> <arquivo_saida>
 ```
+
+**Exemplos** (usando os arquivos de teste fornecidos):
+```bash
+python3 coloracao_wifi.py grafo_wifi_p.txt saida_parte2_p.txt
+python3 coloracao_wifi.py grafo_wifi_m.txt saida_parte2_m.txt
+```
+
+O programa lê o grafo, gera o arquivo de saída no formato exigido (`ALGORITMO`, `JUSTIFICATIVA`, `NUM_CORES`, `COLORACAO`) e também imprime no terminal o valor de χ(G) encontrado.
 
 ### Formato do arquivo de entrada
 
 ```
-<>
+<num_vertices>\t<num_arestas>
+<vertice_u>\t<vertice_v>    (repetido para cada aresta, sem peso)
 ```
+O separador é TAB (`\t`).
 
 ### Algoritmo de coloração utilizado
 
-<>
+O programa combina uma heurística rápida com uma verificação exata de otimalidade, em três etapas:
 
-### Estrutura interna do código
+1. **DSatur** constrói uma coloração candidata: a cada passo, escolhe o vértice de maior *grau de saturação* (quantidade de cores distintas já usadas pelos vizinhos), desempatando pelo maior grau no grafo, e atribui a menor cor ainda não usada por seus vizinhos.
+2. Para garantir que o resultado é o **número cromático exato** (e não apenas uma boa aproximação), o programa busca uma **clique** no grafo. Toda clique de tamanho *k* exige no mínimo *k* cores, pois seus vértices são todos mutuamente adjacentes — isso fornece um limite inferior para χ(G).
+3. Se o número de cores do DSatur **coincidir** com esse limite inferior, a coloração já está provada ótima. Caso contrário, o programa recorre a **backtracking exato (branch and bound)**, testando k = limite_inferior, limite_inferior+1, ... até encontrar o menor k para o qual existe coloração válida — esse k é, por definição, χ(G).
 
-<>
+Em ambos os grafos de teste (`grafo_wifi_p.txt` e `grafo_wifi_m.txt`) há um triângulo (clique de tamanho 3), e o DSatur atingiu exatamente 3 cores — logo, em nenhum dos dois casos foi necessário executar o backtracking exaustivo.
+
+### Estrutura interna do código (`parte2/coloracao_wifi.py`)
+
+| Função | Responsabilidade |
+|---|---|
+| `ler_grafo` | Lê o arquivo de entrada e monta o grafo como lista de conjuntos de adjacência |
+| `dsatur` | Constrói uma coloração heurística pelo algoritmo DSatur |
+| `encontrar_clique_lower_bound` | Busca heuristicamente uma clique no grafo, usada como limite inferior para χ(G) |
+| `k_coloravel` | Backtracking exato: tenta colorir o grafo com exatamente *k* cores |
+| `numero_cromatico_exato` | Encontra χ(G) exato chamando `k_coloravel` para k crescente, a partir do limite inferior |
+| `main` | Orquestra a leitura, executa DSatur, compara com o limite inferior, decide se o backtracking é necessário e escreve o arquivo de saída |
 
 ---
 
