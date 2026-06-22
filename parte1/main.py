@@ -1,3 +1,5 @@
+import sys
+
 def ler_grafo(caminho_arquivo):
     with open(caminho_arquivo, 'r') as f:
         linhas = f.readlines()
@@ -99,29 +101,70 @@ def bellman_ford(grafo, s, num_vertices):   # Suporta arestas com pesos negativo
     
     return dist, predecessor, tem_ciclo_negativo
 
+def tem_peso_negativo(grafo):
+    for u in grafo:
+        for v, custo in grafo[u]:
+            if custo < 0:
+                return True
+    return False
+
+def escrever_saida(caminho_arquivo, algoritmo, justificativa, rota, custo):
+    """
+    Escreve a saída no formato especificado do professor:
+        ALGORITMO: <nome>
+        JUSTIFICATIVA: <texto>
+        ROTA: <v0> <v1> ... <vn>
+        CUSTO: <valor>
+    """
+    rota_str = " ".join(str(v) for v in rota)
+
+    with open(caminho_arquivo, 'w') as f:
+        f.write(f"ALGORITMO: {algoritmo}\n")
+        f.write(f"JUSTIFICATIVA: {justificativa}\n")
+        f.write(f"ROTA: {rota_str}\n")
+        f.write(f"CUSTO: {custo}\n")
+
 
 
 if __name__ == "__main__":
-    grafo, s, t, num_vertices = ler_grafo("grafo_rede_p.txt")
-    print("S:", s, "T:", t)
-    print("Grafo:")
-    for vertice, vizinhos in grafo.items():
-        print(f"    {vertice} -> {vizinhos}")
+    if len(sys.argv) != 3:
+        print("Uso: python3 main.py <arquivo_entrada> <arquivo_saida>")
+        sys.exit(1)
 
-    dist, predecessor = dijkstra(grafo, s)
-    print("\nDistâncias:", dist)
-    print("Predecessores:", predecessor)
+    arquivo_entrada = sys.argv[1]
+    arquivo_saida = sys.argv[2]
 
-    caminho = reconstruir_caminho(predecessor, s, t)
-    print("\nCaminho minimo (Dijkstra):", caminho)
-    print("Custo total:", dist[t])
+    grafo, s, t, num_vertices = ler_grafo(arquivo_entrada)
 
-    print("\n --- Executando Bellman-Ford no grafo medio ---")
-    grafo_m, s_m, t_m, num_vertices_m = ler_grafo("grafo_rede_m.txt")
-    dist_m, predecessor_m, ciclo_neg = bellman_ford(grafo_m, s_m, num_vertices_m)
-    print("\nTem ciclo negativo?", ciclo_neg)
-    print("Distâncias (Bellman-Ford):", dist_m)
+    if not tem_peso_negativo(grafo):
+        # Sem pesos negativos, podemos usar Dijkstra
+        algoritmo = "Dijkstra"
+        justificativa = ("Todos os pesos do grafo são positivos, então o algoritmo de Dijkstra é adequado para encontrar o caminho.\n"
+        "Ele é mais eficiente do que o Bellman-Ford para grafos com pesos positivos. E, como precisamos apenas do caminho S -> T, \n"
+        "não precisamos de um algoritmo como o Floyd-Warshall, que calcula todos os caminhos entre todos os pares de vértices."
+        )
+        dist, predecessor = dijkstra(grafo, s)
+        caminho = reconstruir_caminho(predecessor, s, t)
+        custo = dist[t]
 
-    caminho_m = reconstruir_caminho(predecessor_m, s_m, t_m)
-    print("\nCaminho minimo (Bellman-Ford):", caminho_m)
-    print("Custo total:", dist_m[t_m])
+    else:
+        # Com pesos negativos, precisamos usar Bellman-Ford
+        algoritmo = "Bellman-Ford"
+        justificativa = (
+            "O grafo contém pesos negativos, o que torna o Dijkstra inadequado. O Floyd-Warshall também suportaria, mas resolveria para todos os pares de vértices, \n"
+            "sendo desnecessário para o nosso caso. O Bellman-Ford suporta pesos negativos (sem ciclo negativo) e é mais eficiente que o Floyd-Warshall."
+        )
+        dist, predecessor, ciclo_neg = bellman_ford(grafo, s, num_vertices)
+
+        if ciclo_neg:
+            print("ATENÇÃO: foi detectado um ciclo negativo no grafo. Não é possível encontrar o caminho mínimo.")
+            sys.exit(1)
+
+        caminho = reconstruir_caminho(predecessor, s, t)
+        custo = dist[t]
+
+    escrever_saida(arquivo_saida, algoritmo, justificativa, caminho, custo)
+    print(f"Arquivo {arquivo_saida} gerado com sucesso.")
+    print(f"    Algoritmo: {algoritmo}")
+    print(f"    Rota: {caminho}")
+    print(f"    Custo: {custo}")
