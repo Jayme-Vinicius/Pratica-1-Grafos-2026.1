@@ -1,0 +1,5 @@
+ALGORITMO: Bellman-Ford
+JUSTIFICATIVA: O grafo contém pesos negativos, o que torna o Dijkstra inadequado. O Floyd-Warshall também suportaria, mas resolveria para todos os pares de vértices, 
+sendo desnecessário para o nosso caso. O Bellman-Ford suporta pesos negativos (sem ciclo negativo) e é mais eficiente que o Floyd-Warshall.
+ROTA: 0 1 2 4 3 6 9
+CUSTO: 6.0

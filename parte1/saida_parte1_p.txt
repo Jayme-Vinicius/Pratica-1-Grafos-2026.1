@@ -1,0 +1,6 @@
+ALGORITMO: Dijkstra
+JUSTIFICATIVA: Todos os pesos do grafo são positivos, então o algoritmo de Dijkstra é adequado para encontrar o caminho.
+Ele é mais eficiente do que o Bellman-Ford para grafos com pesos positivos. E, como precisamos apenas do caminho S -> T, 
+não precisamos de um algoritmo como o Floyd-Warshall, que calcula todos os caminhos entre todos os pares de vértices.
+ROTA: 0 1 3 4
+CUSTO: 7.0
