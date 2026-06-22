@@ -72,6 +72,35 @@ def reconstruir_caminho(predecessor, s, t): # Reconstrói o caminho de s para t 
         return None
     return caminho
 
+def bellman_ford(grafo, s, num_vertices):   # Suporta arestas com pesos negativos, mas não suporta ciclos negativos
+    dist = {v: float('inf') for v in grafo}
+    dist[s] = 0
+    predecessor = {v: None for v in grafo}
+
+    # Repete o relaxamento para todas as arestas (num_vertices - 1) vezes
+    for _ in range(num_vertices - 1):
+        houve_atualizacao = False
+        for u in grafo:
+            for v, custo in grafo[u]:
+                if dist[u] + custo < dist[v]:
+                    dist[v] = dist[u] + custo
+                    predecessor[v] = u
+                    houve_atualizacao = True
+        # Se não houve atualização em uma iteração, podemos parar antes do final
+        if not houve_atualizacao:
+            break
+
+    # Se ainda existir relaxamento possível após (num_vertices - 1) iterações, então há um ciclo negativo
+    tem_ciclo_negativo = False
+    for u in grafo:
+        for v, custo in grafo[u]:
+            if dist[u] + custo < dist[v]:
+                tem_ciclo_negativo = True
+    
+    return dist, predecessor, tem_ciclo_negativo
+
+
+
 if __name__ == "__main__":
     grafo, s, t, num_vertices = ler_grafo("grafo_rede_p.txt")
     print("S:", s, "T:", t)
@@ -84,5 +113,15 @@ if __name__ == "__main__":
     print("Predecessores:", predecessor)
 
     caminho = reconstruir_caminho(predecessor, s, t)
-    print("\nCaminho minimo:", caminho)
+    print("\nCaminho minimo (Dijkstra):", caminho)
     print("Custo total:", dist[t])
+
+    print("\n --- Executando Bellman-Ford no grafo medio ---")
+    grafo_m, s_m, t_m, num_vertices_m = ler_grafo("grafo_rede_m.txt")
+    dist_m, predecessor_m, ciclo_neg = bellman_ford(grafo_m, s_m, num_vertices_m)
+    print("\nTem ciclo negativo?", ciclo_neg)
+    print("Distâncias (Bellman-Ford):", dist_m)
+
+    caminho_m = reconstruir_caminho(predecessor_m, s_m, t_m)
+    print("\nCaminho minimo (Bellman-Ford):", caminho_m)
+    print("Custo total:", dist_m[t_m])
